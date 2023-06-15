@@ -10,7 +10,6 @@ Future<List<QueryDocumentSnapshot>> fetchFirestoreDocuments() async {
   List<QueryDocumentSnapshot> documents = querySnapshot.docs;
   return documents;
 }
-
 class Contacts extends StatefulWidget {
   const Contacts({Key? key}) : super(key: key);
   @override
@@ -26,31 +25,15 @@ class _ContactsState extends State<Contacts> {
 
   Future<void> _refreshAcceptedUsers() async {
     await Future.delayed(
-        const Duration(seconds: 1));// Simulating a delay for refreshing data
+        const Duration(seconds: 1));
     setState(() {
 
     });
   }
 
-
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _timeController = TextEditingController();
   final TextEditingController _emailIdController = TextEditingController();
-
-  Future<bool> duplicates() async {
-    String itemName = _nameController.text;
-    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-        .collection('Contacts')
-        .where("Name", isEqualTo: itemName)
-        .get();
-    if (querySnapshot.docs.isNotEmpty) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-
 
   void newUser() {
     showDialog(
@@ -131,8 +114,6 @@ class _ContactsState extends State<Contacts> {
                 return Text('Error: ${snapshot.error}');
               }
               List<QueryDocumentSnapshot> documents = snapshot.data!;
-              // List<DocumentSnapshot> contacts = documents.docs;
-
               return ListView.builder(
                 itemCount: documents.length,
                 itemBuilder: (BuildContext context, int index) {
@@ -140,11 +121,7 @@ class _ContactsState extends State<Contacts> {
                   var name = documents[index].get('Name');
                   var mobNo = documents[index].get('MobNo');
                   var emailId = documents[index].get('EmailId');
-                  return UserCard(
-                    name: name,
-                    mobNo: mobNo,
-                    emailId: emailId,
-                    delete: contact.id,
+                  return UserCard(name: name, mobNo: mobNo, emailId: emailId, delete: contact.id,
                     Ename: name, EmobNo: mobNo, EemailId: emailId,
                   );
                 },

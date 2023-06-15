@@ -33,14 +33,13 @@ class _EditPageState extends State<EditPage> {
   }
 
   void updateContact() {
-    FirebaseFirestore.instance.collection('Contacts').doc(widget.editName).update({
+    FirebaseFirestore.instance.collection('Contacts').doc(widget.editMob).update({
       'Name': _nameController.text,
       'MobNo': _mobNoController.text,
       'EmailId': _emailController.text,
     }).then((value) {
-      Navigator.pop(context); // Navigate back to the previous screen
+      Navigator.pop(context);
     }).catchError((error) {
-      // Handle error
       print('Failed to update contact: $error');
     });
   }
@@ -50,7 +49,7 @@ class _EditPageState extends State<EditPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit Contact'),
+        title: const Text('Edit Contact'),
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
@@ -58,17 +57,17 @@ class _EditPageState extends State<EditPage> {
           children: [
             TextFormField(
               controller: _nameController,
-              decoration: InputDecoration(labelText: 'Name'),
+              decoration: const InputDecoration(labelText: 'Name'),
             ),
             TextFormField(
               controller: _mobNoController,
-              decoration: InputDecoration(labelText: 'Mob. No.'),
+              decoration: const InputDecoration(labelText: 'Mob. No.'),
             ),
             TextFormField(
               controller: _emailController,
-              decoration: InputDecoration(labelText: 'Email'),
+              decoration: const InputDecoration(labelText: 'Email'),
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: updateContact,
               child: Text('Save Changes'),

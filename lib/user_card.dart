@@ -61,7 +61,6 @@ class _UserCardState extends State<UserCard> {
                     Text('Email Id : ${widget.emailId}'),
                     const SizedBox(height: 10,),
                     Row(
-                      // mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         ElevatedButton(onPressed: (){ deleteContact(widget.delete);}, child: const Icon(Icons.delete),),
