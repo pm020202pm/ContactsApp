@@ -10,11 +10,11 @@ Future<List<QueryDocumentSnapshot>> fetchFirestoreDocuments() async {
   List<QueryDocumentSnapshot> documents = querySnapshot.docs;
   return documents;
 }
+
 class Contacts extends StatefulWidget {
   const Contacts({Key? key}) : super(key: key);
   @override
   State<Contacts> createState() => _ContactsState();
-
 }
 
 class _ContactsState extends State<Contacts> {
@@ -24,16 +24,20 @@ class _ContactsState extends State<Contacts> {
   }
 
   Future<void> _refreshAcceptedUsers() async {
-    await Future.delayed(
-        const Duration(seconds: 1));
-    setState(() {
-
-    });
+    await Future.delayed(const Duration(seconds: 1));
+    setState(() {});
   }
 
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _timeController = TextEditingController();
+  final TextEditingController _mobNoController = TextEditingController();
   final TextEditingController _emailIdController = TextEditingController();
+  final formKey = GlobalKey<FormState>();
+  bool _isNumeric(String value) {
+    if (value == null) {
+      return false;
+    }
+    return double.tryParse(value) != null;
+  }
 
   void newUser() {
     showDialog(
@@ -43,22 +47,55 @@ class _ContactsState extends State<Contacts> {
           title: const Text('Create new contact'),
           content: Column(
             children: [
-              TextField(
-                controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Name',
-                ),
-              ),
-              TextField(
-                controller: _timeController,
-                decoration: const InputDecoration(
-                  labelText: 'Mob No',
-                ),
-              ),
-              TextField(
-                controller: _emailIdController,
-                decoration: const InputDecoration(
-                  labelText: 'Email Id',
+              Form(
+                key: formKey,
+                child: Column(
+                  children: [
+                    TextFormField(
+                      controller: _nameController,
+                      decoration: const InputDecoration(
+                        labelText: 'Name',
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter name';
+                        }
+                      },
+                    ),
+                    TextFormField(
+                      controller: _mobNoController,
+                      decoration: const InputDecoration(
+                        labelText: 'Mobile No.',
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a mobile number';
+                        } else if (!_isNumeric(value)) {
+                          return 'Please enter a valid mobile number';
+                        } else if (value.length != 10) {
+                          return 'Mobile number must be 10 digits';
+                        }
+                        return null;
+                      },
+                    ),
+                    TextFormField(
+                      controller: _emailIdController,
+                      decoration: const InputDecoration(
+                        labelText: 'Email Id',
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter an email address';
+                        }
+                        else if ((!RegExp(
+                                r'^[\w-]+(\.[\w-]+)*@([a-z0-9-]+\.)+[a-z]{2,}$')
+                            .hasMatch(value))) {
+                          return 'Please enter a valid email address';
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -73,20 +110,24 @@ class _ContactsState extends State<Contacts> {
             TextButton(
               child: const Text('Submit'),
               onPressed: () async {
-                _refreshAcceptedUsers();
-                await FirebaseFirestore.instance
-                    .collection('Contacts')
-                    .add({
-                      'Name': _nameController.text,
-                      'MobNo': _timeController.text,
-                      'EmailId': _emailIdController.text,
-                    })
-                    .then((value) => print("User added"))
-                    .catchError((error) => print("Failed to add user: $error"));
-                Navigator.pop(context);
-                _nameController.clear();
-                _timeController.clear();
-                _emailIdController.clear();
+                if (formKey.currentState != null &&
+                    formKey.currentState!.validate()) {
+                  _refreshAcceptedUsers();
+                  await FirebaseFirestore.instance
+                      .collection('Contacts')
+                      .add({
+                        'Name': _nameController.text,
+                        'MobNo': _mobNoController.text,
+                        'EmailId': _emailIdController.text,
+                      })
+                      .then((value) => print("User added"))
+                      .catchError(
+                          (error) => print("Failed to add user: $error"));
+                  Navigator.pop(context);
+                  _nameController.clear();
+                  _mobNoController.clear();
+                  _emailIdController.clear();
+                }
               },
             ),
           ],
@@ -121,8 +162,14 @@ class _ContactsState extends State<Contacts> {
                   var name = documents[index].get('Name');
                   var mobNo = documents[index].get('MobNo');
                   var emailId = documents[index].get('EmailId');
-                  return UserCard(name: name, mobNo: mobNo, emailId: emailId, delete: contact.id,
-                    Ename: name, EmobNo: mobNo, EemailId: emailId,
+                  return UserCard(
+                    name: name,
+                    mobNo: mobNo,
+                    emailId: emailId,
+                    delete: contact.id,
+                    Ename: name,
+                    EmobNo: mobNo,
+                    EemailId: emailId,
                   );
                 },
               );
